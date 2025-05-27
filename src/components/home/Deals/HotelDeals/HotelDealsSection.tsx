@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import dummyImage from "@/assets/images/dummyImage.png";
+// import dummyImage from "@/assets/images/dummyImage.png";
 
 interface HotelDealsSectionProps {
   image?: string;
@@ -28,7 +28,7 @@ const HotelDealsSection: React.FC<HotelDealsSectionProps> = ({
     >
       <img
         // src={image || "https://placehold.co/600x400"}
-        src={dummyImage}
+        src={"https://placehold.co/600x400"}
         alt={`${city} hotel deals`}
         className="w-full h-[13rem] object-cover"
       />
