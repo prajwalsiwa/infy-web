@@ -1,0 +1,11 @@
+/* Apply custom styles to the GeoSearchControl input */
+/* Ensure search input width is always 100% */
+.leaflet-control-geosearch form input {
+    width: 100% !important; /* Force full width */
+    padding: 10rem;
+    font-size: 14px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  

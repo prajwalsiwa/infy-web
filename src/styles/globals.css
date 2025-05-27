@@ -1,0 +1,235 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@layer base {
+  :root {
+    /* color variables */
+    --color-backgroud: #ffffff;
+    --color-background-light-blue: #edf6fc;
+    --color-primary: #2497eb;
+    --color-primary-dark: #094876;
+    --color-blue-veryDark: #072030;
+    --color-primary-faded: #ceeaff;
+    --color-secondary: #26c39d;
+    --color-secondary-faded: #cefde5;
+    --color-gold: #d4a224;
+    --color-gold-faded: #fee8cc;
+    --color-pink: #fee6e3;
+    --color-danger: #cc3e3f;
+    --color-gray: #91999a;
+    --color-gray-dark: #343638;
+    --color-gray-faded: #acafaf;
+    --color-border: #e5e7e8;
+
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply text-[14px];
+  }
+
+  h1 {
+    @apply text-4xl font-medium leading-[1.2] lg:text-5xl;
+  }
+
+  h5 {
+    @apply text-lg leading-[1.2] lg:text-xl;
+  }
+}
+
+@layer utilities {
+  .section {
+    @apply py-6 lg:py-8 xl:py-12;
+  }
+
+  .container {
+    @apply max-w-[1440px] min-w-[280px] mx-auto px-6 lg:px-10 xl:px-14;
+  }
+}
+
+.header {
+  @apply w-full bg-background ;
+}
+
+.header-sticky {
+  @apply sticky top-0 left-0 shadow-md z-20;
+}
+
+.footer {
+  @apply section bg-primary-veryDark;
+
+  a {
+    @apply w-max duration-300 hover:text-primary;
+  }
+}
+
+.section-title {
+  @apply mb-4 text-2xl text-primary-dark font-medium tracking-wide;
+}
+
+.banner {
+  @apply relative bg-no-repeat bg-center py-24;
+
+  &::before {
+    content: "";
+    @apply absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white to-white/20;
+  }
+}
+
+.trending-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+
+  & > * {
+    grid-column: span 6;
+  }
+
+  @media (min-width: 768px) {
+    & > * {
+      grid-column: span 3;
+    }
+  }
+
+  @media (min-width: 976px) {
+    & > :nth-child(n + 3) {
+      grid-column: span 2;
+    }
+  }
+}
+
+.trending-card {
+  @apply relative rounded-xl outline-primary hover:outline;
+
+  &::before {
+    content: "";
+    @apply absolute top-0 left-0 w-full h-full rounded-xl bg-gradient-to-t from-black/70 to-black/0 hover:from-black/90 duration-300;
+  }
+}
+
+.trending-card_title {
+  @apply absolute bottom-4 left-4;
+}
+
+.property-banner {
+  @apply relative px-8 py-16 bg-[url('/property.jpg')] bg-cover bg-center rounded-xl md:px-12 lg:py-16 lg:px-24;
+
+  &::before {
+    content: "";
+    @apply absolute top-0 left-0 size-full rounded-xl bg-blue-600/20 z-0;
+  }
+}
+
+.search-input-container {
+  @apply bg-white;
+
+  & > div {
+    &:not(:first-child) {
+      @apply border-l-2;
+    }
+  }
+}
+
+/* Custom scrollbar styles for the horizontal scroll */
+.scroll-area::-webkit-scrollbar {
+  height: 8px; /* Set the height of the scrollbar */
+}
+
+.scroll-area::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light background for the scrollbar track */
+  border-radius: 10px; /* Rounded corners for the track */
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+  background:#acafaf; /* Thumb color */
+  border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #acafaf; /* Darker color for the thumb when hovered */
+}
+
+.scroll-area-vertical::-webkit-scrollbar {
+  height: 8px;
+  width: 7px;
+}
+
+.scroll-area-vertical::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light background for the scrollbar track */
+  border-radius: 10px; /* Rounded corners for the track */
+}
+
+.scroll-area-vertical::-webkit-scrollbar-thumb {
+  background:#acafaf; /* Thumb color */
+  border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.scroll-area-vertical::-webkit-scrollbar-thumb:hover {
+  background: #acafaf; /* Darker color for the thumb when hovered */
+}
+
