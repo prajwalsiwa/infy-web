@@ -1,5 +1,5 @@
 import Icon from "@/components/ui/Icon";
-import dummyImage from "@/assets/images/dummyImage.png";
+// import dummyImage from "@/assets/images/dummyImage.png";
 
 function HotelDealsCard({
   name,
@@ -37,7 +37,7 @@ function HotelDealsCard({
       <div className=" h-[13.04rem] relative rounded-t-lg z-20">
        
        {/* <img src={image || dummyImage} alt={name} className="w-full h-full object-cover rounded-t-lg" /> */}
-       <img src={dummyImage} alt={name} className="w-full h-full object-cover rounded-t-lg" />
+       <img src={""} alt={name} className="w-full h-full object-cover rounded-t-lg" />
 
 
         {/* Horizontal ribbon text on top */}
