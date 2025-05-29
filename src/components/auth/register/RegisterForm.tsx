@@ -37,7 +37,7 @@ function RegisterForm({ isLogo = true }: RegisterFormProps) {
       try {
         const accessToken = tokenResponse.access_token;
         const response = await fetch(
-          "https://inf.rajeshpudasaini.com.np/api/v4/auth/google",
+          "https://inf.rajeshpudasaini.com.np/api/v4/auth/google/",
           {
             method: "POST",
             headers: {
