@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { useNavigate } from "react-router-dom";
 // import dummyImage from "@/assets/images/dummyImage.png";
@@ -27,8 +26,7 @@ const HotelDealsSection: React.FC<HotelDealsSectionProps> = ({
       className="flex flex-col bg-white shadow-md rounded-lg overflow-hidden cursor-pointer"
     >
       <img
-        // src={image || "https://placehold.co/600x400"}
-        src={"https://placehold.co/600x400"}
+        src={image || "https://placehold.co/600x400"}
         alt={`${city} hotel deals`}
         className="w-full h-[13rem] object-cover"
       />
