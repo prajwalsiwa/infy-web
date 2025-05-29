@@ -56,7 +56,9 @@ function HotelDealsList() {
         <div className="w-full flex flex-col gap-6 items-center">
           <DealsFilter />
           <div className="w-full justify-end flex items-center mb-4">
-            <span className="font-light w-20 sm:text-[1rem] text-md">Sort by:</span>
+            <span className="font-light w-20 sm:text-[1rem] text-md">
+              Sort by:
+            </span>
 
             <select className="ml-2 p-1.5 border border-gray-300 text-[1rem] rounded">
               <option value="recommended">Recommended</option>
