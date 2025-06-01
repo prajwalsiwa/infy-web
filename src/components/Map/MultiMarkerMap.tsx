@@ -78,17 +78,23 @@ const MultiMarkerMap = ({ staysCardList }: { staysCardList: any[] }) => {
         <Marker
           key={index}
           position={[loc.latitude, loc.longitude]}
-          icon={createTooltipIcon(loc.originalPrice)}
+          icon={createTooltipIcon(loc.discountedPrice)}
         >
           <Popup>
-            <div style={{ height: "fit-content" }}>
+            <div
+              style={{
+                height: "fit-content",
+                width: "fit-content",
+                padding: "0.5rem",
+              }}
+            >
               <MapViewHotelCard
                 image={loc.hotelImage}
                 title={loc.title}
                 location={loc.location}
                 rating={loc.rating}
                 originalPrice={loc.originalPrice}
-                discountedPrice={0}
+                discountedPrice={loc.discountedPrice}
               />
             </div>
           </Popup>
