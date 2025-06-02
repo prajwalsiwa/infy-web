@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsTrigger, TabsList } from "@/components/ui/tabs";
 import HotelDeals from "./HotelDeals/HotelDeals";
-import InfytripDeals from "./InfytripDeals/InfytripDeals";
+// import InfytripDeals from "./InfytripDeals/InfytripDeals"; // Not recommended as for now
 
 function TopDeals() {
   return (
@@ -11,19 +11,19 @@ function TopDeals() {
         className="w-full flex items-start flex-col justify-start gap-2"
       >
         <TabsList className="flex gap-2 w-full items-start justify-start">
-          <TabsTrigger value="hotel" className=" font-normal">
+          <TabsTrigger value="hotel" className="font-normal">
             Deals on Hotels
           </TabsTrigger>
-          <TabsTrigger value="infytrip" className=" font-normal">
+          {/* <TabsTrigger value="infytrip" className="font-normal">
             Infytrip Deals
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
         <TabsContent value="hotel">
           <HotelDeals />
         </TabsContent>
-        <TabsContent value="infytrip">
+        {/* <TabsContent value="infytrip">
           <InfytripDeals />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );
