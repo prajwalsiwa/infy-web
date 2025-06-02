@@ -11,7 +11,7 @@ function HotelDealsCard({
   originalPrice,
   discountedPrice,
   includesBreakfast,
-  promoCode,
+  // promoCode,
   ribbonText = "Expires in 1 week"
 }: {
   name: string;
@@ -27,7 +27,7 @@ function HotelDealsCard({
 }) {
 
   return (
-    <div className="w-[19.5rem] h-[24.375rem] rounded-lg shadow-md border border-grey-200 bg-white  relative">
+    <div className="w-[19.5rem] h-[22rem] rounded-lg shadow-md border border-grey-200 bg-white  relative">
       {/* Rotated diagonal band behind the image */}
       {ribbonText && (
         <div className="absolute top-[4.25rem] left-[-1.2rem] w-[8rem] h-5 rotate-45 bg-teal-500 z-10" />
@@ -93,7 +93,7 @@ function HotelDealsCard({
       </div>
 
       {/* Promo Code Section */}
-      <div className="border-t  mx-4 py-2 mt-auto">
+      {/* <div className="border-t  mx-4 py-2 mt-auto">
         <div className="flex justify-between items-center text-sm">
           <div className="font-mono text-teal-700 border-dashed border p-1 text-xs border-teal-700 rounded-sm">
             {promoCode}
@@ -102,7 +102,7 @@ function HotelDealsCard({
             Copy
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
