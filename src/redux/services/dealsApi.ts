@@ -26,10 +26,38 @@ export const dealsApi = rootApi.injectEndpoints({
     }),
     getHotelDeals: builder.query<
       TopDealsResponse,
-      { city: string; sort_by: string }
+      {
+        city: string;
+        sort_by: string;
+        checkin_date?: string;
+        checkout_date?: string;
+        adults?: string;
+        children?: string;
+        infants?: string;
+      }
     >({
-      query: ({ city, sort_by }) =>
-        `top-deals-detail/?city=${city}&sort_by=${sort_by}`,
+      query: ({
+        city,
+        sort_by,
+        checkin_date,
+        checkout_date,
+        adults,
+        children,
+        infants,
+      }) => {
+        const params = new URLSearchParams({
+          city,
+          sort_by,
+        });
+
+        if (checkin_date) params.set("checkin_date", checkin_date);
+        if (checkout_date) params.set("checkout_date", checkout_date);
+        if (adults) params.set("adults", adults);
+        if (children) params.set("children", children);
+        if (infants) params.set("infants", infants);
+
+        return `top-deals-detail/?${params.toString()}`;
+      },
     }),
   }),
 });
