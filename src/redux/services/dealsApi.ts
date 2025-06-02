@@ -24,7 +24,14 @@ export const dealsApi = rootApi.injectEndpoints({
     getTopDeals: builder.query<TopDealsResponse, void>({
       query: () => `/top-deals-on-property/`,
     }),
+    getHotelDeals: builder.query<
+      TopDealsResponse,
+      { city: string; sort_by: string }
+    >({
+      query: ({ city, sort_by }) =>
+        `top-deals-detail/?city=${city}&sort_by=${sort_by}`,
+    }),
   }),
 });
 
-export const { useGetTopDealsQuery } = dealsApi;
+export const { useGetTopDealsQuery, useGetHotelDealsQuery } = dealsApi;
