@@ -1,43 +1,118 @@
-import { Link, useParams } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import HotelDealsCard from "./HotelDealsCard";
 import DealsFilter from "../DealsFilter";
+import { useGetHotelDealsQuery } from "@/redux/services/dealsApi";
+import { useMemo, ChangeEvent } from "react";
 
-const hotelDeals = [
-  {
-    name: "Hotel Annapurna",
-    image: "https://picsum.photos/300/200?random=1",
-    rating: 4.5,
-    discount: "15% off",
-    validTill: "Jul 30, 2023",
-    originalPrice: "3000",
-    discountedPrice: "2500",
-    includesBreakfast: true,
-    promoCode: "Hotel15Off",
-    ribbonText: "Expires in 1 week",
-  },
-  {
-    name: "Himalaya Palace",
-    image: "https://picsum.photos/300/200?random=2",
-    rating: 4.2,
-    discount: "20% off",
-    validTill: "Aug 15, 2023",
-    originalPrice: "3500",
-    discountedPrice: "2800",
-    includesBreakfast: false,
-    promoCode: "HIM20",
-    ribbonText: "Expires in 2 week",
-  },
-];
+interface TransformedDeal {
+  name: string;
+  image: string;
+  rating: number;
+  discount: string;
+  validTill: string;
+  originalPrice: string;
+  discountedPrice: string;
+  includesBreakfast: boolean;
+  promoCode: string;
+  ribbonText: string;
+}
 
 function HotelDealsList() {
-  const { city } = useParams();
+  const { city } = useParams<{ city?: string }>();
   const cityName = city ? city.charAt(0).toUpperCase() + city.slice(1) : "";
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const sortBy = queryParams.get("sort_by") ?? "";
+
+  const {
+    data: hotelDealsList,
+    error,
+    isLoading,
+  } = useGetHotelDealsQuery({
+    city: city ?? "",
+    sort_by: sortBy,
+  });
+
+  const transformedDeals: TransformedDeal[] = useMemo(() => {
+    if (!hotelDealsList?.results) return [];
+
+    return hotelDealsList.results.map((deal: any, index: number) => {
+      const image = `https://picsum.photos/300/200?random=${index + 1}`;
+      const discount = deal.discount_percentage
+        ? `${deal.discount_percentage}% off`
+        : "";
+
+      const validTill = new Date(deal.to_date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      const originalPrice = 3000;
+      const discountedPrice = (
+        originalPrice *
+        (1 - (deal.discount_percentage ?? 0) / 100)
+      ).toFixed(0);
+
+      const rating = 4 + Math.random();
+      const includesBreakfast = Math.random() > 0.5;
+      const promoCode = deal.discount_code ?? "";
+
+      const expiryDate = new Date(deal.to_date);
+      const today = new Date();
+      const daysLeft = Math.ceil(
+        (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const ribbonText =
+        daysLeft > 0
+          ? `Expires in ${daysLeft} day${daysLeft > 1 ? "s" : ""}`
+          : "Expired";
+
+      return {
+        name: deal.name,
+        image,
+        rating: +rating.toFixed(1),
+        discount,
+        validTill,
+        originalPrice: originalPrice.toString(),
+        discountedPrice,
+        includesBreakfast,
+        promoCode,
+        ribbonText,
+      };
+    });
+  }, [hotelDealsList]);
+
+  const handleSortChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selected = e.target.value;
+    queryParams.set("sort_by", selected);
+    navigate({ search: queryParams.toString() });
+  };
+
+  if (isLoading) {
+    return <p className="p-10 text-center">Loading hotel deals...</p>;
+  }
+
+  if (error) {
+    return (
+      <p className="p-10 text-center text-red-500">
+        Error loading hotel deals.
+      </p>
+    );
+  }
+
+  if (!transformedDeals.length) {
+    return (
+      <p className="p-10 text-center">No hotel deals found for {cityName}.</p>
+    );
+  }
 
   return (
     <div className="w-full pt-10">
-      {/* Outer padding container */}
-      <div className="px-6 xl:px-20 flex flex-col justify-start items-start  w-full">
-        {/* Breadcrumb */}
+      <div className="px-6 xl:px-20 flex flex-col justify-start items-start w-full">
         <nav className="mb-4 text-sm text-gray-600" aria-label="Breadcrumb">
           <ol className="flex gap-1 list-reset">
             <li>
@@ -52,25 +127,26 @@ function HotelDealsList() {
           </ol>
         </nav>
 
-        {/* Filter and Hotel List Section */}
         <div className="w-full flex flex-col gap-6 items-center">
           <DealsFilter />
+
           <div className="w-full justify-end flex items-center mb-4">
             <span className="font-light w-20 sm:text-[1rem] text-md">
               Sort by:
             </span>
-
-            <select className="ml-2 p-1.5 border border-gray-300 text-[1rem] rounded">
-              <option value="recommended">Recommended</option>
-              <option value="recommended">Most Popular</option>
-              <option value="price-low-to-high">Low to High Discounts</option>
-              <option value="price-high-to-low">High to Low Discounts</option>
-              <option value="rating">Nearest</option>
+            <select
+              className="ml-2 p-1.5 border border-gray-300 text-[1rem] rounded"
+              value={sortBy}
+              onChange={handleSortChange}
+            >
+              <option value="">Recommended</option>
+              <option value="HTOL">High to Low Discounts</option>
+              <option value="LTOH">Low to High Discounts</option>
             </select>
           </div>
-          {/* Hotel Cards */}
+
           <div className="w-full flex flex-wrap gap-4">
-            {hotelDeals.map((hotel, index) => (
+            {transformedDeals.map((hotel, index) => (
               <HotelDealsCard key={index} {...hotel} />
             ))}
           </div>
