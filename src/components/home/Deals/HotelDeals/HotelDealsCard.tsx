@@ -1,7 +1,9 @@
 import Icon from "@/components/ui/Icon";
+import { useNavigate } from "react-router-dom";
 // import dummyImage from "@/assets/images/dummyImage.png";
 
 function HotelDealsCard({
+  id,
   name,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   image,
@@ -12,8 +14,9 @@ function HotelDealsCard({
   discountedPrice,
   includesBreakfast,
   // promoCode,
-  ribbonText = "Expires in 1 week"
+  ribbonText = "Expires in 1 week",
 }: {
+  id: number;
   name: string;
   image: string;
   rating: number;
@@ -25,9 +28,14 @@ function HotelDealsCard({
   promoCode: string;
   ribbonText?: string;
 }) {
-
+  const navigate = useNavigate();
   return (
-    <div className="w-[19.5rem] h-[22rem] rounded-lg shadow-md border border-grey-200 bg-white  relative">
+    <div
+      className="w-[19.5rem] h-[22rem] rounded-lg shadow-md border border-grey-200 bg-white  relative"
+      onClick={() => {
+        navigate(`/search/hotel-view/${id}`);
+      }}
+    >
       {/* Rotated diagonal band behind the image */}
       {ribbonText && (
         <div className="absolute top-[4.25rem] left-[-1.2rem] w-[8rem] h-5 rotate-45 bg-teal-500 z-10" />
@@ -35,10 +43,12 @@ function HotelDealsCard({
 
       {/* Image Section */}
       <div className=" h-[13.04rem] relative rounded-t-lg z-20">
-       
-       {/* <img src={image || dummyImage} alt={name} className="w-full h-full object-cover rounded-t-lg" /> */}
-       <img src={"https://placehold.co/600x400"} alt={name} className="w-full h-full object-cover rounded-t-lg" />
-
+        {/* <img src={image || dummyImage} alt={name} className="w-full h-full object-cover rounded-t-lg" /> */}
+        <img
+          src={"https://placehold.co/600x400"}
+          alt={name}
+          className="w-full h-full object-cover rounded-t-lg"
+        />
 
         {/* Horizontal ribbon text on top */}
         {ribbonText && (
