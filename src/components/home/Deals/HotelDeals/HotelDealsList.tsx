@@ -6,6 +6,7 @@ import { useGetHotelDealsQuery } from "@/redux/services/dealsApi";
 import { useMemo, ChangeEvent } from "react";
 
 interface TransformedDeal {
+  id: number;
   name: string;
   image: string;
   rating: number;
@@ -27,6 +28,12 @@ function HotelDealsList() {
   const queryParams = new URLSearchParams(location.search);
   const sortBy = queryParams.get("sort_by") ?? "";
 
+  const checkin_date = queryParams.get("checkin_date") ?? "";
+  const checkout_date = queryParams.get("checkout_date") ?? "";
+  const adults = queryParams.get("adults") ?? "0";
+  const children = queryParams.get("children") ?? "0";
+  const infants = queryParams.get("infants") ?? "0";
+
   const {
     data: hotelDealsList,
     error,
@@ -34,6 +41,19 @@ function HotelDealsList() {
   } = useGetHotelDealsQuery({
     city: city ?? "",
     sort_by: sortBy,
+    checkin_date,
+    checkout_date,
+    adults,
+    children,
+    infants,
+  } as {
+    city: string;
+    sort_by: string;
+    checkin_date: string;
+    checkout_date: string;
+    adults: string;
+    children: string;
+    infants: string;
   });
 
   const transformedDeals: TransformedDeal[] = useMemo(() => {
@@ -72,6 +92,7 @@ function HotelDealsList() {
           : "Expired";
 
       return {
+        id: deal.id,
         name: deal.name,
         image,
         rating: +rating.toFixed(1),
@@ -147,7 +168,7 @@ function HotelDealsList() {
 
           <div className="w-full flex flex-wrap gap-4">
             {transformedDeals.map((hotel, index) => (
-              <HotelDealsCard key={index} {...hotel} />
+              <HotelDealsCard key={hotel.id ?? index} {...hotel} />
             ))}
           </div>
         </div>
