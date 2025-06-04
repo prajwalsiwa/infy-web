@@ -20,7 +20,7 @@ export interface GetPropertyTypeListResponse {
 
 const listYourPropertyApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPropertyListings: builder.query<any,void>({
+    getPropertyListings: builder.query<any, void>({
       query: () => ({
         url: "my/properties/",
         method: "GET",
@@ -215,6 +215,30 @@ const listYourPropertyApi = rootApi.injectEndpoints({
       }),
     }),
 
+    //step 7 submit membership plan
+    submitMembershipPlan: builder.mutation({
+      query: ({ property, membership }) => ({
+        url: "save-property-financial/",
+        method: "POST",
+        body: {
+          property,
+          membership,
+          account_holder_name: null,
+          account_number: null,
+          bank_name: null,
+          bank_branch: null,
+          card_number: null,
+          name_on_card: null,
+          expiration_date: null,
+          cvv: null,
+          esewa_id: null,
+          khalti_id: null,
+          paypal_id: null,
+          pre_payment: null,
+        },
+      }),
+    }),
+
     // step 8 get all data for submit
     getSubmitDetails: builder.query<any, { propertyId: number }>({
       query: ({ propertyId }) => ({
@@ -251,5 +275,6 @@ export const {
   useSubmitOtherInfoMutation,
   useSubmitLocationMutation,
   useGetSubmitDetailsQuery,
+  useSubmitMembershipPlanMutation,
   useSubmitDetailsMutation,
 } = listYourPropertyApi;
