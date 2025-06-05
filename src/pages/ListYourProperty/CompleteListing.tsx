@@ -343,7 +343,7 @@ function CompleteListing() {
       try {
         await submitMembership({
           property: propertyId,
-          membership: membership?.membership || null, // safer access
+          membership: membership?.membership || null,
         }).unwrap();
 
         if (activeTab < tabList.length - 1) {
