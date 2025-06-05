@@ -1,8 +1,29 @@
 import { paymentMethods } from "@/lib/constants/staysFilter";
-import CheckboxList from "../../ui/FilterSection/CheckBoxList";
+
+type PaymentMethod = {
+  id: number;
+  label: string;
+  count: number;
+};
+
+type RelatedPaymentsListProps = {
+  paymentsData: PaymentMethod[];
+};
+
+function RelatedPaymentsList({ paymentsData }: RelatedPaymentsListProps) {
+  return (
+    <ul>
+      {paymentsData.map((payment) => (
+        <li key={payment.id}>
+          {payment.label} ({payment.count})
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function RelatedPayments() {
-  return <CheckboxList title="Payment Related" items={paymentMethods} />;
+  return <RelatedPaymentsList paymentsData={paymentMethods} />;
 }
 
 export default RelatedPayments;
