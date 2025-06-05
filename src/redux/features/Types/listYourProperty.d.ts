@@ -90,6 +90,7 @@ export interface PolicyCategory {
 }
 
 export interface getMembershipPlansResponse {
+  id: number;
   name: string;
   description: string;
   price: number;
