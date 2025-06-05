@@ -1,10 +1,18 @@
 import PriceRangeSlider from "@/components/SearchDetails/ui/FilterSection/PriceRangeSlider";
 
-function PriceRangeSlide() {
+interface PriceRangeSlideProps {
+  defaultMaxPrice: number;
+  defaultMinPrice: number;
+}
+
+function PriceRangeSlide({ defaultMaxPrice, defaultMinPrice }: PriceRangeSlideProps) {
   return (
     <div>
       <div className="text-gray-dark font-medium text-base">Price</div>
-      <PriceRangeSlider />
+      <PriceRangeSlider
+        defaultMinPrice={defaultMinPrice}
+        defaultMaxPrice={defaultMaxPrice}
+      />
     </div>
   );
 }
