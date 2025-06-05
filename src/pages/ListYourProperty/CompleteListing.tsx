@@ -16,6 +16,7 @@ import {
   useSubmitAmenitiesMutation,
   useSubmitDetailsMutation,
   useSubmitLocationMutation,
+  useSubmitMembershipPlanMutation,
   useSubmitOtherInfoMutation,
   useSubmitPoliciesMutation,
   useSubmitPropertyInfoMutation,
@@ -93,6 +94,8 @@ function CompleteListing() {
   const amenities = getValues("amenities");
   const policies = getValues("policy");
   const otherInfo = getValues("otherInfo");
+  const membership = getValues("membership");
+  console.log(membership, "membership values");
 
   // const { control } = methods;
 
@@ -108,6 +111,9 @@ function CompleteListing() {
     useSubmitPoliciesMutation();
   const [submitOtherInfo, { isLoading: isOtherInfoLoading }] =
     useSubmitOtherInfoMutation();
+
+  const [submitMembership, { isLoading: isMembershipLoading }] =
+    useSubmitMembershipPlanMutation();
   const [submitDetails, { isLoading: isDetailsLoading }] =
     useSubmitDetailsMutation();
 
@@ -332,33 +338,33 @@ function CompleteListing() {
       }
     },
     6: async () => {
-      if (propertyId) {
-        try {
-          // await submitOtherInfo({
-          //   property: propertyId,
-          //   ...otherInfo,
-          // }).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-          // toast({
-          //   title: "Submission Successful",
-          //   description: "Other Info submitted successfully.",
-          //   variant: "success",
-          // });
-        } catch {
-          // toast({
-          //   title: "Submission Failed",
-          //   description: "Error submitting Other info. Please try again.",
-          //   action: <ToastAction altText="Try again">Try again</ToastAction>,
-          //   variant: "destructive",
-          // });
-          // console.error("Error submitting Other info", error);
+      if (!propertyId) return;
+
+      try {
+        await submitMembership({
+          property: propertyId,
+          membership: membership?.membership || null, // safer access
+        }).unwrap();
+
+        if (activeTab < tabList.length - 1) {
+          setActiveTab((prev) => prev + 1);
         }
+
+        toast({
+          title: "Submission Successful",
+          description: "Membership submitted successfully.",
+          variant: "success",
+        });
+      } catch (error) {
+        toast({
+          title: "Submission Failed",
+          description: "Error submitting Membership. Please try again.",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+          variant: "destructive",
+        });
+        console.error("Error submitting membership", error);
       }
     },
-
     7: async () => {
       if (propertyId) {
         try {
@@ -420,6 +426,7 @@ function CompleteListing() {
     isAddRoomLoading ||
     isPoliciesLoading ||
     isOtherInfoLoading ||
+    isMembershipLoading ||
     isDetailsLoading;
 
   return (
