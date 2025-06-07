@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Amenities from "@/components/ListYourProperty/CompleteListing/Amenities";
@@ -21,7 +21,7 @@ import {
   useSubmitPoliciesMutation,
   useSubmitPropertyInfoMutation,
 } from "@/redux/services/listYourPropertyApi";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { validateForm } from "./validateForm";
 import Submit from "@/components/ListYourProperty/CompleteListing/Submit/Submit";
@@ -85,20 +85,18 @@ function CompleteListing() {
     resolver: validateForm,
   });
 
-  const { getValues } = methods;
-  const propertyInfoValues = getValues("propertyInfo");
-  const locationInfo = getValues("location");
-  const addRoomInfoValues = getValues("roomInfo");
+  // Destructure all needed values at once for optimization
+  const {
+    propertyInfo,
+    location,
+    roomInfo,
+    amenities,
+    policy,
+    otherInfo,
+    membership,
+  } = methods.getValues();
 
-  console.log(addRoomInfoValues, "room infor values");
-  const amenities = getValues("amenities");
-  const policies = getValues("policy");
-  const otherInfo = getValues("otherInfo");
-  const membership = getValues("membership");
-  console.log(membership, "membership values");
-
-  // const { control } = methods;
-
+  // Mutations
   const [submitPropertyInfo, { isLoading: isPropertyInfoLoading }] =
     useSubmitPropertyInfoMutation();
   const [submitLocation, { isLoading: isLocationLoading }] =
@@ -111,145 +109,108 @@ function CompleteListing() {
     useSubmitPoliciesMutation();
   const [submitOtherInfo, { isLoading: isOtherInfoLoading }] =
     useSubmitOtherInfoMutation();
-
   const [submitMembership, { isLoading: isMembershipLoading }] =
     useSubmitMembershipPlanMutation();
   const [submitDetails, { isLoading: isDetailsLoading }] =
     useSubmitDetailsMutation();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 0:
-        return (
-          <PropertyInfo
-            errors={methods.formState?.errors?.propertyInfo ?? {}}
-          />
-        );
-      case 1:
-        return <Location errors={methods.formState?.errors?.location ?? {}} />;
-      case 2:
-        return <Amenities />;
-      case 3:
-        return (
-          <Rooms
-            propertyId={propertyId} // errors={methods.formState?.errors?.addRoom ?? {}}
-          />
-        );
-      case 4:
-        return <Policy />;
-      case 5:
-        return <OtherInfo />;
-      case 6:
-        return <Membership />;
-      case 7:
-        return <Submit propertyId={propertyId} />;
-      default:
-        return null;
-    }
-  };
+  // Helper: go to next tab
+  const goToNextTab = useCallback(() => {
+    setActiveTab((prev) => (prev < tabList.length - 1 ? prev + 1 : prev));
+  }, []);
 
+  // Toast helpers
+  const showSuccessToast = useCallback((title: string, description: string) => {
+    toast({ title, description, variant: "success" });
+  }, [toast]);
+
+  const showErrorToast = useCallback((title: string, description: string) => {
+    toast({
+      title,
+      description,
+      action: <ToastAction altText="Try again">Try again</ToastAction>,
+      variant: "destructive",
+    });
+  }, [toast]);
+
+  // Abstracted submit section helper
+  const submitSection = useCallback(
+    async (
+      submitFn: (data: any) => any,
+      data: any,
+      successMsg: string,
+      errorMsg: string
+    ) => {
+      try {
+        await submitFn(data).unwrap();
+        goToNextTab();
+        showSuccessToast("Submission Successful", successMsg);
+      } catch (error) {
+        showErrorToast("Submission Failed", errorMsg);
+        // Optionally log error
+      }
+    },
+    [goToNextTab, showSuccessToast, showErrorToast]
+  );
+
+  // Tab handlers
   const tabHandlers: { [key: number]: () => Promise<void> } = {
     0: async () => {
-      // Property Info
-      if (propertyInfoValues) {
+      if (propertyInfo) {
         try {
-          const response = await submitPropertyInfo(
-            propertyInfoValues
-          ).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
+          const response = await submitPropertyInfo(propertyInfo).unwrap();
+          goToNextTab();
           const newPropertyId = response.id;
           setPropertyId(newPropertyId);
           localStorage.setItem("propertyId", newPropertyId.toString());
-          toast({
-            title: "Submission Successful",
-            description: "Property Info submitted successfully.",
-            variant: "success",
-          });
+          showSuccessToast(
+            "Submission Successful",
+            "Property Info submitted successfully."
+          );
         } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description: "Error submitting property info. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting property info:", error);
+          showErrorToast(
+            "Submission Failed",
+            "Error submitting property info. Please try again."
+          );
         }
       }
     },
     1: async () => {
-      if (locationInfo && propertyId) {
-        try {
-          const transformedLocation = {
-            city: locationInfo.city,
-            street_name: locationInfo.streetName,
-            street_no: locationInfo.streetNo,
-            country: locationInfo.country,
-            zip_code: locationInfo.postalCode,
-            additional_information: locationInfo.chowk,
-            latitude: locationInfo.latitude,
-            longitude: locationInfo.longitude,
-            property: propertyId,
-          };
-
-          await submitLocation(transformedLocation).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-          toast({
-            title: "Submission Successful",
-            description: "Location Info submitted successfully.",
-            variant: "success",
-          });
-        } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description: "Error submitting Location. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting location", error);
-        }
+      if (location && propertyId) {
+        const transformedLocation = {
+          city: location.city,
+          street_name: location.streetName,
+          street_no: location.streetNo,
+          country: location.country,
+          zip_code: location.postalCode,
+          additional_information: location.chowk,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          property: propertyId,
+        };
+        await submitSection(
+          submitLocation,
+          transformedLocation,
+          "Location Info submitted successfully.",
+          "Error submitting Location. Please try again."
+        );
       }
     },
     2: async () => {
       if (amenities && propertyId) {
-        try {
-          const formattedAmenities = Array.isArray(amenities) ? amenities : [];
-
-          await submitAmenities({
-            property: propertyId,
-            amenities: formattedAmenities,
-          }).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-          toast({
-            title: "Submission Successful",
-            description: "Amenities submitted successfully.",
-            variant: "success",
-          });
-        } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description: "Error submitting Amenities. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting amenities:", error);
-        }
+        const formattedAmenities = Array.isArray(amenities) ? amenities : [];
+        await submitSection(
+          submitAmenities,
+          { property: propertyId, amenities: formattedAmenities },
+          "Amenities submitted successfully.",
+          "Error submitting Amenities. Please try again."
+        );
       }
     },
     3: async () => {
-      const addRooms = getValues("roomInfo");
-
-      if (addRooms && propertyId) {
+      if (roomInfo && propertyId) {
         try {
-          for (const room of addRooms) {
+          for (const room of roomInfo) {
             await submitAddRoom({
               organisation: propertyId,
               name: room.name,
@@ -264,105 +225,47 @@ function CompleteListing() {
               infants: room.infants || 0,
             }).unwrap();
           }
-
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-
-          toast({
-            title: "All Rooms Submitted",
-            description: `${addRooms.length} rooms submitted successfully.`,
-            variant: "success",
-          });
+          goToNextTab();
+          showSuccessToast(
+            "All Rooms Submitted",
+            `${roomInfo.length} rooms submitted successfully.`
+          );
         } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description:
-              "Error submitting one or more rooms. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting one of the rooms:", error);
+          showErrorToast(
+            "Submission Failed",
+            "Error submitting one or more rooms. Please try again."
+          );
         }
       }
     },
     4: async () => {
-      if (policies && propertyId) {
-        try {
-          await submitPolicies({ property: propertyId, ...policies }).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-          toast({
-            title: "Submission Successful",
-            description: "Policies submitted successfully.",
-            variant: "success",
-          });
-        } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description: "Error submitting Policies. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting policies", error);
-        }
+      if (policy && propertyId) {
+        await submitSection(
+          submitPolicies,
+          { property: propertyId, ...policy },
+          "Policies submitted successfully.",
+          "Error submitting Policies. Please try again."
+        );
       }
     },
     5: async () => {
       if (otherInfo && propertyId) {
-        try {
-          await submitOtherInfo({
-            property: propertyId,
-            ...otherInfo,
-          }).unwrap();
-          // Move to the next tab
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-          toast({
-            title: "Submission Successful",
-            description: "Other Info submitted successfully.",
-            variant: "success",
-          });
-        } catch (error) {
-          toast({
-            title: "Submission Failed",
-            description: "Error submitting Other info. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting Other info", error);
-        }
+        await submitSection(
+          submitOtherInfo,
+          { property: propertyId, ...otherInfo },
+          "Other Info submitted successfully.",
+          "Error submitting Other info. Please try again."
+        );
       }
     },
     6: async () => {
-      if (!propertyId) return;
-
-      try {
-        await submitMembership({
-          property: propertyId,
-          membership: membership?.membership || null,
-        }).unwrap();
-
-        if (activeTab < tabList.length - 1) {
-          setActiveTab((prev) => prev + 1);
-        }
-
-        toast({
-          title: "Submission Successful",
-          description: "Membership submitted successfully.",
-          variant: "success",
-        });
-      } catch (error) {
-        toast({
-          title: "Submission Failed",
-          description: "Error submitting Membership. Please try again.",
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
-          variant: "destructive",
-        });
-        console.error("Error submitting membership", error);
+      if (propertyId) {
+        await submitSection(
+          submitMembership,
+          { property: propertyId, membership: membership?.membership || null },
+          "Membership submitted successfully.",
+          "Error submitting Membership. Please try again."
+        );
       }
     },
     7: async () => {
@@ -372,46 +275,30 @@ function CompleteListing() {
             is_accepted: true,
             property: propertyId,
           }).unwrap();
-
-          // Move to the next tab if submission is successful
-          if (activeTab < tabList.length - 1) {
-            setActiveTab((prev) => prev + 1);
-          }
-
-          // Success Toast with updated description
-          toast({
-            title: "Submission Successful",
-            description:
-              "Your information has been submitted successfully. Moving to the next step.",
-            variant: "success",
-          });
+          goToNextTab();
+          showSuccessToast(
+            "Submission Successful",
+            "Your information has been submitted successfully. Moving to the next step."
+          );
           navigate("/list-your-property/property-list");
         } catch (error) {
-          // Error Toast with updated description
-          toast({
-            title: "Submission Failed",
-            description:
-              "There was an issue submitting your information. Please try again.",
-            action: <ToastAction altText="Try again">Try again</ToastAction>,
-            variant: "destructive",
-          });
-          console.error("Error submitting details", error);
+          showErrorToast(
+            "Submission Failed",
+            "There was an issue submitting your information. Please try again."
+          );
         }
       }
     },
   };
 
   const handleTabChange = async () => {
-    // Call the handler for the current active tab if it exists
-
     await methods.trigger();
-
     if (tabHandlers[activeTab]) {
       await tabHandlers[activeTab]();
     }
   };
 
-  // Load `propertyId` from localStorage on component mount
+  // Load propertyId from localStorage on mount
   useEffect(() => {
     const savedPropertyId = localStorage.getItem("propertyId");
     if (savedPropertyId) {
@@ -419,101 +306,84 @@ function CompleteListing() {
     }
   }, []);
 
-  const isAnyLoading =
-    isPropertyInfoLoading ||
-    isLocationLoading ||
-    isAmenitiesLoading ||
-    isAddRoomLoading ||
-    isPoliciesLoading ||
-    isOtherInfoLoading ||
-    isMembershipLoading ||
-    isDetailsLoading;
+  // Consolidated loading state
+  const isAnyLoading = [
+    isPropertyInfoLoading,
+    isLocationLoading,
+    isAmenitiesLoading,
+    isAddRoomLoading,
+    isPoliciesLoading,
+    isOtherInfoLoading,
+    isMembershipLoading,
+    isDetailsLoading,
+  ].some(Boolean);
+
+  // Memoized renderContent
+  const renderContent = useCallback(() => {
+    switch (activeTab) {
+      case 0:
+        return (
+          <PropertyInfo errors={methods.formState?.errors?.propertyInfo ?? {}} />
+        );
+      case 1:
+        return <Location errors={methods.formState?.errors?.location ?? {}} />;
+      case 2:
+        return <Amenities />;
+      case 3:
+        return <Rooms propertyId={propertyId} />;
+      case 4:
+        return <Policy />;
+      case 5:
+        return <OtherInfo />;
+      case 6:
+        return <Membership />;
+      case 7:
+        return <Submit propertyId={propertyId} />;
+      default:
+        return null;
+    }
+  }, [activeTab, methods.formState?.errors, propertyId]);
 
   return (
-    <div className="flex flex-col  h-screen overflow-hidden justify-center items-center pt-8">
+    <div className="flex flex-col h-screen overflow-hidden justify-center items-center pt-8">
       <div className="w-full px-8 mt-16 sm:mt-0">
         <h1 className="md:hidden block text-[1.5rem] text-gray-dark font-semibold">
           List your property
         </h1>
       </div>
-      <div className="pt-6 w-full gap-3  h-[calc(100vh-10rem)] sm:h-full flex  md:justify-center md:items-center  md:flex-col">
+      <div className="pt-6 w-full gap-3 h-[calc(100vh-10rem)] sm:h-full flex md:justify-center md:items-center md:flex-col">
         <div className="px-8 md:px-16 lg:px-16 flex-1 h-full flex flex-col gap-6">
-          {/* Header Section */}
           <div>
             <h1 className="md:block hidden text-[1.5rem] text-gray-dark font-semibold">
               List your property
             </h1>
           </div>
-
-          {/* Stepper Section */}
           <div className="flex justify-center h-full">
-            <SteeperIndicator
-              activeTab={tabList[activeTab]}
-              tabList={tabList}
-            />
+            <SteeperIndicator activeTab={tabList[activeTab]} tabList={tabList} />
           </div>
         </div>
 
         <FormProvider {...methods}>
           <div
-            className="h-full  overflow-auto scroll-area-vertical  
+            className="h-full overflow-auto scroll-area-vertical  
                lg:w-[calc(100vw-30rem)] 
                md:w-[calc(100vw-20rem)] 
                sm:w-[calc(100vw-20rem)] 
                w-full 
-               py-4 md:pr-0  "
+               py-4 md:pr-0"
           >
             <div className="pr-6">{renderContent()}</div>
           </div>
         </FormProvider>
 
         {/* Footer Section */}
-        <div className="hidden sm:flex w-full border-t border-gray-200  items-center justify-between py-4 px-8 sm:px-24">
-          <button
-            type="button"
-            className="text-gray hover:text-gray-dark cursor-pointer"
+        <div className="w-full flex justify-end items-center px-8 py-4">
+          <Button
+            disabled={isAnyLoading}
+            onClick={handleTabChange}
+            className="ml-auto"
           >
-            Save Draft and Exit
-          </button>
-          <div className="flex gap-2 items-start">
-            {activeTab > 0 && (
-              <Button
-                className="px-8"
-                variant="outline"
-                onClick={() => setActiveTab((prev) => prev - 1)}
-              >
-                Previous
-              </Button>
-            )}
-            <Button
-              className="px-8 items-start"
-              onClick={handleTabChange}
-              disabled={isAnyLoading}
-            >
-              {isAnyLoading ? "Submitting data..." : "Next"}
-            </Button>
-          </div>
-        </div>
-      </div>
-      <div className="flex sm:hidden w-full border-t border-gray-200  items-center justify-between py-4 px-8 sm:px-24">
-        <button
-          type="button"
-          className="text-gray hover:text-gray-dark cursor-pointer"
-        >
-          Save Draft and Exit
-        </button>
-        <div className="flex gap-2 items-start">
-          {activeTab > 0 && (
-            <Button
-              className="sm:px-8"
-              variant="outline"
-              onClick={() => setActiveTab((prev) => prev - 1)}
-            >
-              Previous
-            </Button>
-          )}
-          <Button className="px-8 items-start" onClick={handleTabChange}>
-            Next
+            {activeTab === tabList.length - 1 ? "Finish" : "Next"}
           </Button>
         </div>
       </div>
