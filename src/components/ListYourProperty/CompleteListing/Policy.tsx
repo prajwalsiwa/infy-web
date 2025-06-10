@@ -1,15 +1,12 @@
 import CheckboxWithLabel from "@/components/ui/FormUI/CheckboxInput";
 import { useGetPoliciesQuery } from "@/redux/services/listYourPropertyApi";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 function Policy() {
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const { data: policies, isLoading, error } = useGetPoliciesQuery();
-  const { append } = useFieldArray({
-    name: "policy.policies",
-  });
 
-  watch("policy");
+  const selectedPolicies = watch("policy");
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -19,8 +16,14 @@ function Policy() {
     return <div>Error loading policies.</div>;
   }
 
-  const handleCheckChange = (id: number) => {
-    append(id);
+  const handleCheckChange = (id: number, isChecked: boolean) => {
+    const updated = isChecked
+      ? [...(selectedPolicies?.policies ?? []), id]
+      : selectedPolicies?.policies.filter(
+          (policyId: number) => policyId !== id
+        );
+
+    setValue("policy.policies", updated);
   };
 
   return (
@@ -45,7 +48,8 @@ function Policy() {
                     <CheckboxWithLabel
                       key={subItem.id}
                       label={subItem.policy}
-                      onChange={() => handleCheckChange(subItem.id)}
+                      checked={selectedPolicies?.policies?.includes(subItem.id)}
+                      onChange={(checked: boolean) => handleCheckChange(subItem.id, checked)}
                     />
                   ))}
                 </div>
