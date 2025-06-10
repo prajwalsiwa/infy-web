@@ -1,18 +1,23 @@
 import CheckboxWithLabel from "@/components/ui/FormUI/CheckboxInput";
 import { useGetAmenitiesListQuery } from "@/redux/services/listYourPropertyApi";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 function Amenities() {
   const { data: amenitesList } = useGetAmenitiesListQuery();
-  const { watch } = useFormContext();
-  const { append } = useFieldArray({
-    name: "amenities",
-  });
-  watch("amenities");
+  const { watch, setValue } = useFormContext();
+
+  // ✅ Safely watch and normalize amenities
+  const rawAmenities = watch("amenities");
+  const selectedAmenities: number[] = Array.isArray(rawAmenities)
+    ? rawAmenities.map(Number)
+    : [];
 
   const handleCheckChange = (id: number, isChecked: boolean) => {
-    append(id);
-    console.warn(isChecked);
+    const updatedAmenities = isChecked
+      ? [...selectedAmenities, id]
+      : selectedAmenities.filter((amenityId) => amenityId !== id);
+
+    setValue("amenities", updatedAmenities);
   };
 
   return (
@@ -21,13 +26,14 @@ function Amenities() {
         {amenitesList?.map((amenity) => (
           <div key={amenity.category} className="flex flex-col gap-2">
             <div className="text-gray-dark text-[1rem]">{amenity.category}</div>
-            <div className="flex gap-4 p-3 rounded-sm border">
+            <div className="flex gap-4 p-3 rounded-sm border flex-wrap">
               {amenity?.amenities?.map((item) => (
                 <CheckboxWithLabel
                   key={item.id}
                   label={item.title}
-                  className="text-[0.875rem]"
+                  checked={selectedAmenities.includes(item.id)}
                   onChange={(checked) => handleCheckChange(item.id, checked)}
+                  className="text-[0.875rem]"
                 />
               ))}
             </div>
