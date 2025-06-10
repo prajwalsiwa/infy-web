@@ -27,16 +27,21 @@ interface LocationProps {
 }
 
 function Location({ errors }: LocationProps) {
-  const { watch, setValue } = useFormContext();
-  const [locationDetails, setLocationDetails] = useState<Location>({
-    city: "",
-    streetName: "",
-    streetNo: 0,
-    country: "",
-    postalCode: "",
-    chowk: "",
-    latitude: 0,
-    longitude: 0,
+  const { watch, setValue, getValues } = useFormContext();
+
+  // Initialize locationDetails state with default values or values from form context
+  const [locationDetails, setLocationDetails] = useState<Location>(() => {
+    const stored = getValues("location") as Location | undefined;
+    return {
+      city: stored?.city || "",
+      streetName: stored?.streetName || "",
+      streetNo: stored?.streetNo || 0,
+      country: stored?.country || "",
+      postalCode: stored?.postalCode || "",
+      chowk: stored?.chowk || "",
+      latitude: stored?.latitude || 0,
+      longitude: stored?.longitude || 0,
+    };
   });
 
   // Update form state only when locationDetails changes
@@ -74,7 +79,6 @@ function Location({ errors }: LocationProps) {
         <span className="text-primary-dark font-medium text-[1rem]">
           Property Location
         </span>
-        
       </div>
       <div>
         <LocationMap
