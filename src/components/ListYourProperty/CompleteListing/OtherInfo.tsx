@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Map from "@/components/Map/Map";
 import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -16,6 +17,11 @@ function OtherInfo() {
   const { append } = useFieldArray({
     name: "otherInfo.nearby_attractions",
   });
+
+  useEffect(() => {
+    const existingAttractions = getValues("otherInfo.nearby_attractions") || [];
+    setAttractions(existingAttractions);
+  }, []);
 
   watch("otherInfo");
 
@@ -41,18 +47,28 @@ function OtherInfo() {
     const defaultDescription = "This is a default hotel description.";
     setValue("otherInfo.description", defaultDescription); // Sets description to the default value
   };
+
+  // 2. Sync form state when attractions change
+  useEffect(() => {
+    setValue("otherInfo.nearby_attractions", attractions);
+  }, [attractions, setValue]);
+
   useEffect(() => {
     const existingAttractions = getValues("otherInfo.nearby_attractions") || [];
 
     const newAttractions = attractions.filter(
       (attraction) =>
-        !existingAttractions.some((item: { id: number }) => item.id === attraction.id)
+        !existingAttractions.some(
+          (item: { id: number }) => item.id === attraction.id
+        )
     );
 
     if (newAttractions.length > 0) {
       append(newAttractions);
     }
   }, [append, attractions, getValues]);
+
+  
 
   return (
     <div className="flex flex-col  h-full ">
