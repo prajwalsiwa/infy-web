@@ -114,24 +114,35 @@ function CompleteListing() {
   const [submitDetails, { isLoading: isDetailsLoading }] =
     useSubmitDetailsMutation();
 
+  // go to previous tab
+  const goToPrevTab = useCallback(() => {
+    setActiveTab((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
+
   // Helper: go to next tab
   const goToNextTab = useCallback(() => {
     setActiveTab((prev) => (prev < tabList.length - 1 ? prev + 1 : prev));
   }, []);
 
   // Toast helpers
-  const showSuccessToast = useCallback((title: string, description: string) => {
-    toast({ title, description, variant: "success" });
-  }, [toast]);
+  const showSuccessToast = useCallback(
+    (title: string, description: string) => {
+      toast({ title, description, variant: "success" });
+    },
+    [toast]
+  );
 
-  const showErrorToast = useCallback((title: string, description: string) => {
-    toast({
-      title,
-      description,
-      action: <ToastAction altText="Try again">Try again</ToastAction>,
-      variant: "destructive",
-    });
-  }, [toast]);
+  const showErrorToast = useCallback(
+    (title: string, description: string) => {
+      toast({
+        title,
+        description,
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
 
   // Abstracted submit section helper
   const submitSection = useCallback(
@@ -323,7 +334,9 @@ function CompleteListing() {
     switch (activeTab) {
       case 0:
         return (
-          <PropertyInfo errors={methods.formState?.errors?.propertyInfo ?? {}} />
+          <PropertyInfo
+            errors={methods.formState?.errors?.propertyInfo ?? {}}
+          />
         );
       case 1:
         return <Location errors={methods.formState?.errors?.location ?? {}} />;
@@ -359,7 +372,10 @@ function CompleteListing() {
             </h1>
           </div>
           <div className="flex justify-center h-full">
-            <SteeperIndicator activeTab={tabList[activeTab]} tabList={tabList} />
+            <SteeperIndicator
+              activeTab={tabList[activeTab]}
+              tabList={tabList}
+            />
           </div>
         </div>
 
@@ -377,12 +393,16 @@ function CompleteListing() {
         </FormProvider>
 
         {/* Footer Section */}
-        <div className="w-full flex justify-end items-center px-8 py-4">
+        <div className="w-full flex justify-end gap-4 items-center px-8 py-4">
           <Button
-            disabled={isAnyLoading}
-            onClick={handleTabChange}
-            className="ml-auto"
+            className={`${activeTab === 0 ? "hidden" : "block"}`}
+            disabled={activeTab === 0 || isAnyLoading}
+            onClick={goToPrevTab}
           >
+            Previous
+          </Button>
+
+          <Button disabled={isAnyLoading} onClick={handleTabChange}>
             {activeTab === tabList.length - 1 ? "Finish" : "Next"}
           </Button>
         </div>
