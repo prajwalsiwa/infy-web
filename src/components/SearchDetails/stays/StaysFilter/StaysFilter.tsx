@@ -2,7 +2,7 @@ import PriceRangeSlider from "../../ui/FilterSection/PriceRangeSlider";
 import HotelRatings from "../../ui/FilterSection/HotelRatings";
 import RelatedPayments from "./RelatedPayments";
 import PropertyTypes from "./PropertyTypes";
-import BedTypes from "./BedTypes";
+// import BedTypes from "./BedTypes";
 import HotelFacilities from "./HotelFacilities";
 import RoomOffers from "./RoomOffers";
 import Accessibility from "./Accessibility";
@@ -49,7 +49,7 @@ function StaysFilter({ isMobile = false, setIsOpen }: staysFilterProps) {
   const ratingsData = getFilterOptions("Hotel Rating");
   const paymentMethods = getFilterOptions("Payment Related");
   const propertyTypesData = getFilterOptions("Property Type");
-  const bedTypesData = getFilterOptions("Bed Type");
+  // const bedTypesData = getFilterOptions("Bed Type");
   const hotelFacilityList = getFilterOptions("Hotel Facilities");
   const roomOffersData = getFilterOptions("Room Offers");
   const accessibilityData = getFilterOptions("Accessibility");
@@ -118,7 +118,7 @@ function StaysFilter({ isMobile = false, setIsOpen }: staysFilterProps) {
         />
       </div>
       <div>
-        <BedTypes
+        {/* <BedTypes
           bedTypesData={bedTypesData
             .filter(
               (
@@ -136,7 +136,7 @@ function StaysFilter({ isMobile = false, setIsOpen }: staysFilterProps) {
               search_params: item.search_params,
               value: item.value,
             }))}
-        />
+        /> */}
       </div>
       <div>
         <HotelFacilities
