@@ -7,16 +7,36 @@ interface MembershipPlan {
 }
 
 const MembershipCard: React.FC<MembershipPlan> = ({ plans }) => {
-  const { setValue } = useFormContext();
-  const [selectedPlan, setSelectedPlan] = useState<string>("Basic Membership");
+  const { setValue, getValues } = useFormContext();
 
-  const selectedPlanObj = plans?.find((plan) => plan.name === selectedPlan);
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
 
+  // On mount: Read the existing membership from form state if available
   useEffect(() => {
+    const existingMembershipId = getValues("membership.membership");
+
+    if (existingMembershipId && plans?.length) {
+      // Find the plan name that matches the stored ID
+      const existingPlan = plans.find((plan) => plan.id === existingMembershipId);
+      if (existingPlan) {
+        setSelectedPlan(existingPlan.name);
+      } else {
+        // If not found, default to Basic Membership
+        setSelectedPlan("Basic Membership");
+      }
+    } else {
+      // No existing selection: Default to Basic Membership
+      setSelectedPlan("Basic Membership");
+    }
+  }, [plans, getValues]);
+
+  // When selection changes, update form state
+  useEffect(() => {
+    const selectedPlanObj = plans?.find((plan) => plan.name === selectedPlan);
     if (selectedPlanObj?.id) {
       setValue("membership.membership", selectedPlanObj.id);
     }
-  }, [selectedPlanObj, setValue]);
+  }, [selectedPlan, plans, setValue]);
 
   return (
     <div className="flex w-full justify-center gap-4">
@@ -31,7 +51,7 @@ const MembershipCard: React.FC<MembershipPlan> = ({ plans }) => {
           }`}
         >
           {plan.id === 3 && (
-            <div className="text-sm  h-8 w-full absolute text-primary font-semibold bg-primary-light  right-0 top-0 rounded-tl-lg rounded-tr-lg flex items-center justify-center ">
+            <div className="text-sm h-8 w-full absolute text-primary font-semibold bg-primary-light right-0 top-0 rounded-tl-lg rounded-tr-lg flex items-center justify-center">
               Popular
             </div>
           )}
