@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Map from "@/components/Map/Map";
-import { useEffect, useState } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { useFormContext } from "react-hook-form";
 
 type Attraction = {
   id: number;
@@ -12,23 +12,25 @@ type Attraction = {
 };
 
 function OtherInfo() {
-  const { register, watch, setValue, getValues } = useFormContext(); // Add setValue to manipulate form data
+  const { register, watch, setValue, getValues } = useFormContext();
   const [attractions, setAttractions] = useState<Attraction[]>([]);
-  const { append } = useFieldArray({
-    name: "otherInfo.nearby_attractions",
-  });
 
+  const isFirstRender = useRef(true); // 👈 Guard to prevent syncing on first render
+
+  // Load existing form values into local state on component mount
   useEffect(() => {
     const existingAttractions = getValues("otherInfo.nearby_attractions") || [];
     setAttractions(existingAttractions);
   }, []);
 
-  watch("otherInfo");
+  watch("otherInfo"); // Keep watching the form fields (optional depending on your use)
 
+  // Handle removal of an attraction from local state
   const handleRemove = (id: number) => {
     setAttractions((prev) => prev.filter((attraction) => attraction.id !== id));
   };
 
+  // Handle distance change in local state
   const handleDistanceChange = (id: number, distance: string) => {
     setAttractions((prev) =>
       prev.map((attraction) =>
@@ -37,56 +39,44 @@ function OtherInfo() {
     );
   };
 
-  // Clears the description field
+  // Clear hotel description field in the form
   const handleClearDescription = () => {
-    setValue("otherInfo.description", ""); // Sets description to an empty string
+    setValue("otherInfo.description", "");
   };
 
-  // Refills the description field with default or custom text
+  // Refill hotel description with default text
   const handleRefillDescription = () => {
     const defaultDescription = "This is a default hotel description.";
-    setValue("otherInfo.description", defaultDescription); // Sets description to the default value
+    setValue("otherInfo.description", defaultDescription);
   };
 
-  // 2. Sync form state when attractions change
+  // ✅ Sync local state to form state, but skip the initial render to prevent overwriting
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false; // Skip the first sync
+      return;
+    }
+    // Update form state when local state changes
     setValue("otherInfo.nearby_attractions", attractions);
   }, [attractions, setValue]);
 
-  useEffect(() => {
-    const existingAttractions = getValues("otherInfo.nearby_attractions") || [];
-
-    const newAttractions = attractions.filter(
-      (attraction) =>
-        !existingAttractions.some(
-          (item: { id: number }) => item.id === attraction.id
-        )
-    );
-
-    if (newAttractions.length > 0) {
-      append(newAttractions);
-    }
-  }, [append, attractions, getValues]);
-
-  
-
   return (
-    <div className="flex flex-col  h-full ">
-      <div className="w-full border-b pb-4  flex gap-6">
+    <div className="flex flex-col h-full">
+      <div className="w-full border-b pb-4 flex gap-6">
         <div className="w-full flex flex-col gap-4">
           <span className="text-primary-dark font-medium w-full text-[1rem]">
             Nearby Attraction to your location
           </span>
-          <div className=" w-full rounded-lg h-[18rem] overflow-hidden">
+          <div className="w-full rounded-lg h-[18rem] overflow-hidden">
             <Map
               mapPosition={[27.7172, 85.324]}
-              setAttractions={setAttractions}
+              setAttractions={setAttractions} // Map component can still add/update attractions
             />
           </div>
         </div>
+
         <div className="flex flex-col w-full h-fit mt-4">
           <div className="p-4 w-full flex-col mx-auto flex flex-grow">
-            {/* Header Section */}
             <div className="flex justify-between items-start">
               <h2 className="text-gray-dark w-full font-medium text-lg">
                 Nearby Attractions
@@ -96,7 +86,6 @@ function OtherInfo() {
               </h2>
             </div>
 
-            {/* Content Section */}
             <div className="grid gap-4 mt-2">
               {attractions.map((attraction) => (
                 <div key={attraction.id} className="flex w-full">
@@ -107,6 +96,7 @@ function OtherInfo() {
                     <button
                       className="ml-2 text-red-500 flex items-start justify-start w-full text-sm underline"
                       onClick={() => handleRemove(attraction.id)}
+                      type="button"
                     >
                       Remove from list
                     </button>
