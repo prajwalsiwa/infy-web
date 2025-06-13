@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "./tooltipMarker.css";
 import { useEffect } from "react";
 import MapViewHotelCard from "@/routes/MapViewHotelCard";
+import { useNavigate } from "react-router-dom";
 
 // Custom tooltip marker icon
 const createTooltipIcon = (label: string) =>
@@ -48,6 +49,8 @@ const FitBounds = ({ locations }: { locations: any[] }) => {
 };
 
 const MultiMarkerMap = ({ staysCardList }: { staysCardList: any[] }) => {
+  const navigate = useNavigate();
+
   if (!staysCardList || staysCardList.length === 0) {
     return <div>Loading map...</div>;
   }
@@ -82,10 +85,14 @@ const MultiMarkerMap = ({ staysCardList }: { staysCardList: any[] }) => {
         >
           <Popup>
             <div
+            className="cursor-pointer"
               style={{
                 height: "fit-content",
                 width: "fit-content",
                 padding: "0.5rem",
+              }}
+              onClick={() => {
+                navigate(`/search/hotel-view/${loc.id}`);
               }}
             >
               <MapViewHotelCard
